@@ -1,0 +1,30 @@
+#!/bin/sh
+
+check_ssh_domain=true
+
+if [ "$1" == "-k" ]; then
+    check_ssh_domain=false
+    shift
+fi
+
+vmname="$1"
+
+if [ -z "$vmname" ]; then
+    cat <<EOF 2>&1
+Usage: $(basename $0) [-k] vmname
+
+Options
+	-k	Skip ssh key check. Without this, it calls ssh-add before
+		actually calling borg, to force ssh-split to start the vault
+		domain and make configurations.
+EOF
+    exit 128
+fi
+
+trap "umount-vm-image $vmname" EXIT
+mount-vm-image "$vmname"
+
+# fix failing to start ssh-split at runtime
+$check_ssh_domain && qvm-run sys-backup 'ssh-add -L'  
+
+qvm-run -p --service sys-backup qubes.BorgmaticSync+"$vmname" 

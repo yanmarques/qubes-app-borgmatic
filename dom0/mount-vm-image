@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+vmname="$1"
+block_desc="$(date +%d-%m%y)-backup-$1"
+backupvm="sys-backup"
+
+dev="$(basename $(readlink /dev/qubes_dom0/vm-$vmname-private))"
+
+qubesdb-write /qubes-block-devices/$dev/desc "$block_desc"
+qvm-start --skip-if-running "$backupvm"
+qvm-block attach "$backupvm" "dom0:$dev"
+qvm-run -pu root "$backupvm" "mount -o ro /dev/\$(lsblk -l | grep disk | tail -n 1 | awk '{printf \$1}') /mnt/"

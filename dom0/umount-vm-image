@@ -1,0 +1,11 @@
+#!/bin/bash
+
+vmname="$1"
+block_desc="$(date +%d-%m%y)-backup-$1"
+backupvm="sys-backup"
+
+dev="$(basename $(readlink /dev/qubes_dom0/vm-$vmname-private))"
+
+qvm-run -u root "$backupvm" "umount /mnt"
+qvm-block detach "$backupvm" "dom0:$dev"
+qubesdb-rm /qubes-block-devices/$dev/

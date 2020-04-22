@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# ugly here but works
+if [ -f "$HOME/.bashrc" ]; then
+    . "$HOME/.bashrc"
+fi
+
+exec qubes-borgmatic "$1" --progress --stats

@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+vmname="$1"
+basedir=~/.config/qubes-borgmatic/$vmname
+
+usage() {
+    cat <<EOF 2>&1 
+Usage: $0 vmname [BORGMAIC_OPTIONS...]
+EOF
+    exit 128
+}
+
+if [ -z "$vmname" ]; then
+    usage
+fi
+
+shift
+
+exec borgmatic "$@" --config "$basedir/config.yaml"

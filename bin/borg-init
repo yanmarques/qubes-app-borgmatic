@@ -1,0 +1,7 @@
+#!/bin/sh
+vmname="$1"
+if [ -z "$vmname" ]; then
+	echo "Usage: $0 vmname"
+	exit 128
+fi
+exec borg init -e repokey --remote-path borg1 rsync.net:repos/$vmname

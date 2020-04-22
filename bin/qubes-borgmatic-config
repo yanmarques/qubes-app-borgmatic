@@ -1,0 +1,33 @@
+#!/bin/sh
+
+should_read_pwd=0
+
+if [ "$1" == "-p" ]; then
+    should_read_pwd=1
+    shift
+fi
+
+vmname="$1"
+basedir=~/.config/qubes-borgmatic
+config_path=$basedir/$vmname/config.yaml
+
+if [ -z "$vmname" ]; then
+    cat <<EOF 2>&1
+Usage: $0 [-p] vmname
+
+Options:
+	-p	Read password from stdin and replace on configuration.
+EOF
+    exit 128
+fi
+
+mkdir -pm 700 $basedir/$vmname
+cp -b $basedir/default.yaml $config_path
+sed -i "s|\$NAME|$vmname|" $config_path
+
+if [ $should_read_pwd -eq 1 ]; then
+    echo -n "Enter new password: "
+    read -s passwd
+    echo
+    sed -i "s|\$PASS|${passwd//|/\\|}|" $config_path	
+fi

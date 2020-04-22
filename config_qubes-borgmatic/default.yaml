@@ -1,0 +1,17 @@
+location:
+        source_directories:
+                # - /mnt/home/user
+        repositories:
+                - rsync.net:repos/$NAME
+        archive_name_format: $NAME-{now:%m-%d-%YT%H:%M%S}
+
+storage:
+        encryption_passphrase: "$PASS"
+        compression: zlib
+
+retention:
+        keep_daily: 7
+        prefix: $NAME-
+
+consistency:
+        prefix: $NAME-

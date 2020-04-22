@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+
+mount_point=/run/media/user/removable
+qvm_tool=qvm-block
+
+if [ "$1" == "-u" ]; then
+    qvm_tool=qvm-usb
+    shift
+fi
+
+vmname="$1"
+usbdev="$2"
+
+if [ -z "$vmname" ] || [ -z "$usbdev" ]; then
+    echo "Usage: $(basename $0) [-u] vmname backend:device_id" 2>&1
+    exit 128
+fi
+
+cleanup() {
+    qvm-run -u root "umount $mount_point"
+    $qvm_tool detach sys-backup
+}
+
+trap cleanup EXIT
+
+qvm-start --skip-if-running sys-backup
+$qvm_tool attach sys-backup "$usbdev"
+qvm-run -u root "mount /dev/xvdi $mount_point"
+prepare-backup -k "$vmname"
